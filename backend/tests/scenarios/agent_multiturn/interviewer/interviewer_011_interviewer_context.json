@@ -1,0 +1,134 @@
+{
+  "scenario_id": "interviewer_011",
+  "title": "interviewer_context · 周安 · 11",
+  "role": "interviewer",
+  "tags": [
+    "interviewer_context",
+    "interviewer",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "周安",
+    "job_alias": "job_a",
+    "job_name": "数据分析师",
+    "seed": 303359
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第46组数据分析师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第46组招聘记录，查看候选人周安的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第46组上下文，查看我被分配的这位候选人详情",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第46组招聘待办：他应聘的岗位是什么？",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第46组复盘前，查看他的脱敏联系方式",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "谢谢，第46组跟进就到这里",
+      "expect": {
+        "intent": "smalltalk",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": []
+}

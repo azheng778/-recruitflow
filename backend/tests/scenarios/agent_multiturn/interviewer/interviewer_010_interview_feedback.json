@@ -1,0 +1,141 @@
+{
+  "scenario_id": "interviewer_010",
+  "title": "interview_feedback · 许澄 · 10",
+  "role": "interviewer",
+  "tags": [
+    "interview_feedback",
+    "interviewer",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "record_interview_feedback"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "许澄",
+    "job_alias": "job_a",
+    "job_name": "前端工程师",
+    "seed": 176001
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第45组前端工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第45组招聘记录，查看候选人许澄的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第45组上下文，记录这场面试反馈：优点是Python基础扎实，缺点是系统设计经验不足，建议通过",
+      "expect": {
+        "intent": "interview_feedback",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "record_interview_feedback"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第45组招聘待办：再查看这位候选人的信息",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第45组复盘前，重复提交刚才的反馈验证幂等",
+      "expect": {
+        "intent": "interview_feedback",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "record_interview_feedback"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": "t03"
+    },
+    {
+      "turn_id": "t06",
+      "message": "谢谢，第45组跟进就到这里",
+      "expect": {
+        "intent": "smalltalk",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": [
+    {
+      "type": "no_duplicate_write",
+      "candidate_alias": null,
+      "expected": true
+    }
+  ]
+}

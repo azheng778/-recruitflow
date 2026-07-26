@@ -1,0 +1,140 @@
+{
+  "scenario_id": "hr_017",
+  "title": "status_normal · 陆辰 · 17",
+  "role": "hr",
+  "tags": [
+    "status_normal",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "propose_status_change",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "陆辰",
+    "job_alias": "job_a",
+    "job_name": "AI Agent 工程师",
+    "seed": 93502
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第17组AI Agent 工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第17组招聘记录，查看候选人陆辰的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第17组上下文，把他从新候选人推进到筛选阶段",
+      "expect": {
+        "intent": "status_change",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "propose_status_change"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第17组招聘待办：继续推进到一面",
+      "expect": {
+        "intent": "status_change",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "propose_status_change"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第17组复盘前，查看他的最新应聘阶段",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第17组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": []
+}

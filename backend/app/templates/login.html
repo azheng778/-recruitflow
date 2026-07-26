@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>登录 · 智聘流</title><link rel="stylesheet" href="/static/app.css"></head>
+<body class="login-body">
+  <section class="login-card">
+    <div class="brand login-brand"><span class="brand-mark">智</span><span>智聘流</span></div>
+    <p class="eyebrow">智能招聘运营平台</p>
+    <h1>让招聘进展<br>自动成为数据</h1>
+    <p class="muted">消息自动记录、人工审批、实时漏斗，一条链路完成。</p>
+    {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      <label>用户名<input name="username" value="hr_demo" required autocomplete="username"></label>
+      <label>密码<input name="password" type="password" required autocomplete="current-password"></label>
+      <button type="submit" class="primary full">进入工作台</button>
+    </form>
+    <small class="muted">演示账号：系统管理员、招聘专员、面试官（用户名保持系统标识不变）</small>
+  </section>
+</body></html>

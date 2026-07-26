@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}智聘流{% endblock %}</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <link rel="stylesheet" href="/static/responsive.css">
+  <link rel="stylesheet" href="/static/sidebar.css?v=3">
+  <link rel="stylesheet" href="/static/agent.css?v=3">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+  <div id="appShell" class="app-shell">
+    <aside id="sidebar" class="sidebar" aria-label="主导航">
+      <div class="sidebar-head">
+        <a class="brand" href="/dashboard" title="智聘流">
+          <span class="brand-mark">智</span><span class="brand-text">智聘流</span>
+        </a>
+        <button id="sidebarCollapse" class="sidebar-collapse" type="button" aria-label="收起侧边栏" title="收起侧边栏">
+          <span aria-hidden="true">‹</span>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <section class="nav-group {{ 'open' if active == 'agent' else '' }}" data-group="agent">
+          <button class="nav-group-toggle {{ 'active' if active == 'agent' else '' }}" type="button" aria-expanded="{{ 'true' if active == 'agent' else 'false' }}">
+            <span class="nav-icon" aria-hidden="true">✦</span>
+            <span class="nav-label">AI 招聘助手</span>
+            <span class="nav-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="nav-group-body">
+            <a class="nav-child new-chat {{ 'active' if active == 'agent' and not request.query_params.get('conversation_id') else '' }}" href="/agent">
+              <span aria-hidden="true">＋</span><span class="nav-child-text">新建会话</span>
+            </a>
+            <div id="sidebarConversations" class="conversation-list" aria-live="polite">
+              <div class="conversation-empty">正在加载会话…</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="nav-group {{ 'open' if active != 'agent' else '' }}" data-group="recruitment">
+          <button class="nav-group-toggle {{ 'active' if active != 'agent' else '' }}" type="button" aria-expanded="{{ 'true' if active != 'agent' else 'false' }}">
+            <span class="nav-icon" aria-hidden="true">▦</span>
+            <span class="nav-label">招聘信息</span>
+            <span class="nav-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div class="nav-group-body">
+            <a class="nav-child {{ 'active' if active == 'dashboard' else '' }}" href="/dashboard">招聘看板</a>
+            {% if user.role in ['admin','hr'] %}<a class="nav-child {{ 'active' if active == 'candidates' else '' }}" href="/candidates">候选人</a>{% endif %}
+            <a class="nav-child {{ 'active' if active == 'interviews' else '' }}" href="/interviews">面试安排</a>
+            {% if user.role in ['admin','hr'] %}<a class="nav-child {{ 'active' if active == 'approvals' else '' }}" href="/approvals">审批中心</a>{% endif %}
+            {% if user.role in ['admin','hr'] %}<a class="nav-child {{ 'active' if active == 'messages' else '' }}" href="/messages">消息自动化</a>{% endif %}
+          </div>
+        </section>
+      </nav>
+
+      <div class="sidebar-user" title="{{ user.display_name }} · {{ user.role|zh }}">
+        <div class="avatar">{{ user.display_name[:1] }}</div>
+        <div class="sidebar-user-text"><strong>{{ user.display_name }}</strong><small>{{ user.role|zh }}</small></div>
+      </div>
+    </aside>
+    <main class="content">{% block content %}{% endblock %}</main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script>
+    const UI_LABELS = {{ ui_labels|tojson }};
+    function zhLabel(value){ return UI_LABELS[value] || value || '—'; }
+    function csrf(){ return decodeURIComponent((document.cookie.match(/(?:^|; )csrf_token=([^;]*)/)||[])[1]||''); }
+    async function api(path, options={}){
+      options.headers = Object.assign({'Content-Type':'application/json','X-CSRF-Token':csrf()}, options.headers||{});
+      const response = await fetch(path, options); const body = await response.json();
+      if(!response.ok) throw new Error(body.error?.message || '请求失败'); return body.data;
+    }
+    function toast(message, bad=false){ const el=document.getElementById('toast'); el.textContent=message; el.className='toast show '+(bad?'bad':''); setTimeout(()=>el.className='toast',2600); }
+
+    const shell=document.getElementById('appShell');
+    const collapseButton=document.getElementById('sidebarCollapse');
+    function setSidebarCollapsed(collapsed){
+      shell.classList.toggle('sidebar-collapsed', collapsed);
+      collapseButton.setAttribute('aria-label', collapsed?'展开侧边栏':'收起侧边栏');
+      collapseButton.title=collapsed?'展开侧边栏':'收起侧边栏';
+      collapseButton.querySelector('span').textContent=collapsed?'›':'‹';
+      localStorage.setItem('recruitflow.sidebarCollapsed', collapsed?'1':'0');
+    }
+    setSidebarCollapsed(localStorage.getItem('recruitflow.sidebarCollapsed')==='1');
+    collapseButton.addEventListener('click',()=>setSidebarCollapsed(!shell.classList.contains('sidebar-collapsed')));
+
+    document.querySelectorAll('.nav-group-toggle').forEach(button=>button.addEventListener('click',()=>{
+      const group=button.closest('.nav-group');
+      const willOpen=!group.classList.contains('open');
+      group.classList.toggle('open',willOpen);
+      button.setAttribute('aria-expanded',String(willOpen));
+      if(willOpen && group.dataset.group==='agent') refreshSidebarConversations();
+    }));
+
+    function conversationDate(value){
+      if(!value)return '';
+      return new Intl.DateTimeFormat('zh-CN',{month:'2-digit',day:'2-digit'}).format(new Date(value));
+    }
+    function renameConversation(event,id,currentTitle){
+      event.preventDefault(); event.stopPropagation();
+      const row=event.currentTarget.closest('.conversation-row');
+      const titleElement=row.querySelector('.conversation-title');
+      const input=document.createElement('input');
+      input.className='conversation-title-input'; input.value=currentTitle; input.maxLength=80;
+      input.addEventListener('click',innerEvent=>innerEvent.stopPropagation());
+      let finished=false;
+      async function finish(save){
+        if(finished)return; finished=true;
+        const title=input.value.trim();
+        if(!save || !title || title===currentTitle){await refreshSidebarConversations();return;}
+        try{
+          await api(`/api/agent/conversations/${id}`,{method:'PATCH',body:JSON.stringify({title})});
+          toast('会话标题已更新'); await refreshSidebarConversations();
+        }catch(error){toast(error.message,true);await refreshSidebarConversations()}
+      }
+      input.addEventListener('keydown',keyEvent=>{
+        if(keyEvent.key==='Enter'){keyEvent.preventDefault();finish(true)}
+        if(keyEvent.key==='Escape'){keyEvent.preventDefault();finish(false)}
+      });
+      input.addEventListener('blur',()=>finish(true));
+      titleElement.replaceWith(input); input.focus(); input.select();
+    }
+    async function deleteConversation(event,id,title){
+      event.preventDefault(); event.stopPropagation();
+      if(!window.confirm(`确认删除会话“${title}”？删除后将不再显示在会话列表中。`))return;
+      try{
+        await api(`/api/agent/conversations/${id}/archive`,{method:'POST',body:JSON.stringify({})});
+        toast('会话已删除');
+        const current=new URLSearchParams(location.search).get('conversation_id');
+        if(current===id){ location.href='/agent'; return; }
+        await refreshSidebarConversations();
+      }catch(error){ toast(error.message,true); }
+    }
+    async function refreshSidebarConversations(){
+      const list=document.getElementById('sidebarConversations');
+      if(!list)return;
+      try{
+        const conversations=await api('/api/agent/conversations');
+        list.replaceChildren();
+        if(!conversations.length){
+          const empty=document.createElement('div'); empty.className='conversation-empty'; empty.textContent='暂无历史会话'; list.appendChild(empty); return;
+        }
+        const current=new URLSearchParams(location.search).get('conversation_id');
+        conversations.forEach(item=>{
+          const row=document.createElement('div'); row.className='conversation-row'+(item.id===current?' active':'');
+          row.title=item.title;
+          row.addEventListener('click',()=>location.href=`/agent?conversation_id=${encodeURIComponent(item.id)}`);
+          const main=document.createElement('span'); main.className='conversation-main';
+          const title=document.createElement('span'); title.className='conversation-title'; title.textContent=item.title;
+          const time=document.createElement('small'); time.textContent=conversationDate(item.updated_at);
+          main.append(title,time);
+          const actions=document.createElement('span'); actions.className='conversation-actions';
+          const edit=document.createElement('button'); edit.type='button'; edit.className='conversation-action conversation-rename'; edit.title='重命名会话'; edit.setAttribute('aria-label','重命名会话'); edit.textContent='✎';
+          edit.addEventListener('click',event=>renameConversation(event,item.id,item.title));
+          const remove=document.createElement('button'); remove.type='button'; remove.className='conversation-action conversation-delete'; remove.title='删除会话'; remove.setAttribute('aria-label','删除会话'); remove.textContent='×';
+          remove.addEventListener('click',event=>deleteConversation(event,item.id,item.title));
+          actions.append(edit,remove);
+          row.append(main,actions); list.appendChild(row);
+        });
+      }catch(error){ list.innerHTML='<div class="conversation-empty">会话加载失败</div>'; }
+    }
+    if(document.querySelector('[data-group="agent"]').classList.contains('open')) refreshSidebarConversations();
+    window.refreshSidebarConversations=refreshSidebarConversations;
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

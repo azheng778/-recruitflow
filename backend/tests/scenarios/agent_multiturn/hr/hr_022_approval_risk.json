@@ -1,0 +1,147 @@
+{
+  "scenario_id": "hr_022",
+  "title": "approval_risk · 苏辰 · 22",
+  "role": "hr",
+  "tags": [
+    "approval_risk",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "propose_status_change",
+    "create_approval_request",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "苏辰",
+    "job_alias": "job_a",
+    "job_name": "前端工程师",
+    "seed": 423563
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第22组前端工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第22组招聘记录，查看候选人苏辰的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第22组上下文，淘汰他，岗位技能不匹配",
+      "expect": {
+        "intent": "status_change",
+        "min_confidence": 0.7,
+        "status": "approval_required",
+        "tools": [
+          "propose_status_change"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": true
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第22组招聘待办：为刚才的高风险变更显式创建审批",
+      "expect": {
+        "intent": "approval_request",
+        "min_confidence": 0.7,
+        "status": "approval_required",
+        "tools": [
+          "create_approval_request"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": true
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第22组复盘前，查询他在审批前的状态",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第22组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": [
+    {
+      "type": "approval_count",
+      "candidate_alias": null,
+      "expected": 1
+    }
+  ]
+}

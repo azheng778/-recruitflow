@@ -1,0 +1,104 @@
+# ============================================================
+# Secrets & Credentials
+# ============================================================
+.env
+.env.*
+!.env.example
+.env.backup
+.env.local
+.env.production
+.env.save
+
+# Markdown / text files that may contain API keys or passwords
+本地的环境及apikey以及数据库.md
+credentials*.md
+*apikey*.md
+*secret*.md
+*密码*.md
+*密钥*.md
+
+# Certificate & private key files
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+
+# Cloud service account credentials
+**/service-account*.json
+
+# ============================================================
+# Claude Code — local settings with API tokens & allowlists
+# ============================================================
+.claude/settings.json
+.claude/settings.local.json
+
+# ============================================================
+# Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+*.egg-info/
+pip-wheel-metadata/
+*.manifest
+*.spec
+.python-version
+
+# ============================================================
+# Virtual Environment
+# ============================================================
+agent/
+.venv/
+venv/
+env/
+
+# ============================================================
+# Runtime Data
+# ============================================================
+data/
+uploads/
+exports/
+backend/data/
+*.sqlite
+*.sqlite3
+
+# ============================================================
+# Logs & Reports
+# ============================================================
+*.log
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+test-results/
+backend/data/test-artifacts/
+
+# ============================================================
+# IDE & OS
+# ============================================================
+.idea/
+.vscode/
+.vs/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.bak
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ============================================================
+# Project-specific
+# ============================================================
+*.code-workspace

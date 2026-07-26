@@ -1,0 +1,256 @@
+.app-shell {
+  grid-template-columns: 276px minmax(0, 1fr);
+  transition: grid-template-columns .22s ease;
+}
+
+.sidebar {
+  width: auto;
+  padding: 24px 18px 20px;
+  overflow: hidden;
+  transition: padding .22s ease;
+}
+
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 38px;
+}
+
+.brand-text,
+.nav-label,
+.sidebar-user-text,
+.nav-chevron {
+  white-space: nowrap;
+}
+
+.sidebar-collapse {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 9px;
+  background: rgba(255,255,255,.06);
+  color: #d8e5e0;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.sidebar-collapse:hover {
+  color: #fff;
+  background: rgba(255,255,255,.13);
+}
+
+.sidebar .sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 34px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.2) transparent;
+}
+
+.nav-group-toggle {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 24px minmax(0,1fr) 18px;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 11px;
+  background: transparent;
+  color: #c7d7d1;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 750;
+}
+
+.nav-group-toggle:hover,
+.nav-group-toggle.active {
+  background: rgba(255,255,255,.11);
+  color: #fff;
+}
+
+.nav-icon {
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.nav-chevron {
+  text-align: center;
+  transition: transform .18s ease;
+}
+
+.nav-group.open .nav-chevron { transform: rotate(180deg); }
+
+.nav-group-body {
+  display: none;
+  margin: 5px 0 8px 18px;
+}
+
+.nav-group.open .nav-group-body { display: block; }
+
+.sidebar .sidebar-nav .nav-child {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px 10px;
+  color: #acc5bc;
+  border-radius: 8px;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.sidebar .sidebar-nav .nav-child:hover,
+.sidebar .sidebar-nav .nav-child.active {
+  background: rgba(255,255,255,.09);
+  color: #fff;
+}
+
+.conversation-list {
+  display: grid;
+  gap: 3px;
+  max-height: 280px;
+  margin-top: 4px;
+  overflow-y: auto;
+}
+
+.conversation-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 7px 7px 7px 10px;
+  border-radius: 8px;
+  color: #abc1ba;
+  cursor: pointer;
+}
+
+.conversation-row:hover,
+.conversation-row.active {
+  color: #fff;
+  background: rgba(255,255,255,.09);
+}
+
+.conversation-main {
+  display: contents;
+  min-width: 0;
+}
+
+.conversation-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.conversation-title-input {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 4px 6px;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 5px;
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-size: 12px;
+  box-shadow: none;
+}
+.conversation-title-input:focus { border-color: #e6b25c; box-shadow: none; }
+
+.conversation-main small {
+  grid-column: 1;
+  grid-row: 2;
+  color: #799b8f;
+  font-size: 10px;
+}
+
+.conversation-actions {
+  grid-column: 2;
+  grid-row: 2;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 1px;
+  width: 45px;
+}
+
+.conversation-action {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.conversation-action:hover,
+.conversation-action:focus { background: rgba(255,255,255,.12); }
+.conversation-empty { padding: 9px 10px; color: #799b8f; font-size: 12px; }
+
+.sidebar-user { min-width: 0; }
+.sidebar-user-text { min-width: 0; }
+.sidebar-user-text strong { overflow: hidden; text-overflow: ellipsis; }
+
+.app-shell.sidebar-collapsed { grid-template-columns: 76px minmax(0,1fr); }
+.sidebar-collapsed .sidebar { padding-inline: 11px; }
+.sidebar-collapsed .sidebar-head { justify-content: center; flex-direction: column; gap: 12px; }
+.sidebar-collapsed .brand-text,
+.sidebar-collapsed .nav-label,
+.sidebar-collapsed .nav-chevron,
+.sidebar-collapsed .nav-group-body,
+.sidebar-collapsed .sidebar-user-text { display: none; }
+.sidebar-collapsed .sidebar-collapse { width: 34px; }
+.sidebar-collapsed .sidebar .sidebar-nav { margin-top: 24px; }
+.sidebar-collapsed .nav-group-toggle { display: grid; grid-template-columns: 1fr; padding: 12px 8px; }
+.sidebar-collapsed .sidebar-user { justify-content: center; padding-inline: 0; }
+
+@media (max-width: 1000px) {
+  .app-shell { grid-template-columns: 230px minmax(0,1fr); }
+  .app-shell.sidebar-collapsed { grid-template-columns: 72px minmax(0,1fr); }
+  .sidebar { width: auto; padding: 22px 14px; }
+  .sidebar .sidebar-nav a { font-size: 13px; }
+  .sidebar .sidebar-nav a::before { content: none; }
+  .sidebar .sidebar-head .brand span.brand-text { display: inline; font-size: 20px; }
+  .sidebar .sidebar-user .sidebar-user-text { display: block; font-size: 14px; }
+  .sidebar .sidebar-user .sidebar-user-text small { font-size: 12px; }
+  .sidebar-collapsed .sidebar .sidebar-head .brand span.brand-text,
+  .sidebar-collapsed .sidebar .sidebar-user .sidebar-user-text { display: none; }
+}
+
+@media (max-width: 720px) {
+  .app-shell,
+  .app-shell.sidebar-collapsed { grid-template-columns: 68px minmax(0,1fr); }
+  .sidebar { padding-inline: 9px; }
+  .brand-text,
+  .nav-label,
+  .nav-chevron,
+  .nav-group-body,
+  .sidebar-user-text { display: none; }
+  .sidebar-head { justify-content: center; flex-direction: column; gap: 10px; }
+  .nav-group-toggle { display: grid; grid-template-columns: 1fr; padding: 11px 7px; }
+  .sidebar-user { justify-content: center; padding-inline: 0; }
+}

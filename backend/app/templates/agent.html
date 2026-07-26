@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block title %}AI 招聘助手 · 智聘流{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div><p class="eyebrow">智能招聘工作台</p><h1>AI 招聘助手</h1><p>仅调用白名单工具，修改类操作自动执行风险校验。</p></div>
+</header>
+<section class="agent-panel panel">
+  <div id="chat" class="chat"></div>
+  <div class="quick">
+    <button onclick="fill('目前有多少开放岗位和待审批？')">查看招聘概况</button>
+    <button onclick="fill('查找李明的候选人记录')">查找候选人</button>
+    <button onclick="fill('王芳终面不通过，建议淘汰')">提议高风险操作</button>
+    <button type="button" onclick="openResumeUpload()">简历上传</button>
+    {% if user.role in ['admin','hr'] %}<button type="button" onclick="location.href='/candidates'">候选人管理</button>{% endif %}
+    <button type="button" onclick="location.href='/interviews'">{{ '我的面试安排' if user.role == 'interviewer' else '面试安排' }}</button>
+  </div>
+  <form id="chatForm" class="chat-form">
+    <input id="chatInput" placeholder="例如：本周有哪些候选人需要跟进？" autocomplete="off">
+    <button class="primary">发送</button>
+  </form>
+</section>
+<dialog id="resumeUploadDialog" class="resume-upload-dialog">
+  <div class="dialog-title"><h2>简历上传与解析</h2><button class="icon" type="button" onclick="closeResumeUpload()" aria-label="关闭">×</button></div>
+  <p class="muted">支持 PDF、DOCX、PNG、JPG、JPEG，最大 {{ 10 }}MB。文本 PDF 不调用 OCR；图片与扫描 PDF 将使用阿里云 OCR。</p>
+  <form id="resumeUploadForm" class="resume-upload-form">
+    <label>开放岗位<select id="resumeJob" required><option value="">正在加载岗位…</option></select></label>
+    <label>简历文件<input id="resumeFile" type="file" accept=".pdf,.docx,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required></label>
+    <p id="resumeUploadStatus" class="resume-upload-status" aria-live="polite"></p>
+    <div class="dialog-actions"><button class="ghost" type="button" onclick="closeResumeUpload()">取消</button><button id="resumeParseButton" class="primary" type="submit">开始解析</button></div>
+  </form>
+  <section id="resumePreview" class="resume-preview" hidden>
+    <h3>结构化预览</h3>
+    <p id="resumeMeta" class="muted"></p>
+    <div id="resumeWarnings" class="resume-warnings"></div>
+    <div id="resumeFacts" class="resume-facts"></div>
+    {% if user.role in ['admin','hr'] %}
+    <div class="dialog-actions"><button id="resumeConfirmButton" class="primary" type="button" onclick="confirmResume()">确认入库</button></div>
+    {% else %}
+    <p class="resume-pending">解析预览已生成，等待 HR 或管理员确认入库。</p>
+    {% endif %}
+  </section>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script>
+  let conversation=new URLSearchParams(location.search).get('conversation_id');
+  const canConfirmResume={{ 'true' if user.role in ['admin','hr'] else 'false' }};
+  let pendingResume=null;
+  const welcome='你好，我可以查询候选人、招聘看板，或提议招聘阶段变化。';
+  function fill(text){chatInput.value=text;chatInput.focus()}
+  function addBubble(role,text){
+    const bubble=document.createElement('div');
+    bubble.className=`bubble ${role==='user'?'user':'assistant'}`;
+    bubble.textContent=text; chat.appendChild(bubble);
+  }
+  function addAgentThinking(){
+    const indicator=document.createElement('div');indicator.id='agentThinking';indicator.className='agent-thinking';indicator.setAttribute('role','status');indicator.setAttribute('aria-live','polite');
+    const spinner=document.createElement('span');spinner.className='agent-thinking-spinner';spinner.setAttribute('aria-hidden','true');
+    const copy=document.createElement('span');copy.textContent='AI 招聘助手正在处理…';
+    indicator.append(spinner,copy);chat.appendChild(indicator);chat.scrollTop=chat.scrollHeight;
+    return indicator;
+  }
+  function removeAgentThinking(){document.getElementById('agentThinking')?.remove()}
+  function addAnswerCard(card){
+    if(!card)return false;
+    const panel=document.createElement('article');panel.className='answer-card';
+    const title=document.createElement('h3');title.textContent=card.title;panel.appendChild(title);
+    const summary=document.createElement('p');summary.textContent=card.summary;panel.appendChild(summary);
+    if(card.facts?.length){
+      const facts=document.createElement('dl');facts.className='answer-facts';
+      card.facts.forEach(item=>{const dt=document.createElement('dt');dt.textContent=item.label;const dd=document.createElement('dd');dd.textContent=Array.isArray(item.value)?item.value.join('、'):String(item.value);facts.append(dt,dd)});
+      panel.appendChild(facts);
+    }
+    (card.sections||[]).forEach(section=>{const box=document.createElement('section');const heading=document.createElement('strong');heading.textContent=section.title;box.appendChild(heading);const list=document.createElement('ul');(section.items||[]).forEach(text=>{const li=document.createElement('li');li.textContent=text;list.appendChild(li)});box.appendChild(list);panel.appendChild(box)});
+    (card.warnings||[]).forEach(text=>{const warning=document.createElement('div');warning.className='answer-warning';warning.textContent=`注意：${text}`;panel.appendChild(warning)});
+    if(card.next_actions?.length){const next=document.createElement('div');next.className='answer-actions';next.textContent=`可继续：${card.next_actions.join('、')}`;panel.appendChild(next)}
+    chat.appendChild(panel);return true;
+  }
+  function addTool(name){
+    const chip=document.createElement('div'); chip.className='tool-chip';
+    chip.textContent=`调用工具：${zhLabel(name)}`; chat.appendChild(chip);
+  }
+  function addClarification(card){
+    if(!card)return;
+    const panel=document.createElement('div');panel.className='clarification-card';
+    const question=document.createElement('strong');question.textContent=card.question;panel.appendChild(question);
+    if(card.choices?.length){
+      const choices=document.createElement('div');choices.className='clarification-choices';
+      card.choices.forEach(choice=>{
+        const button=document.createElement('button');button.type='button';button.textContent=choice.label;
+        button.onclick=()=>sendMessage(`选择：${choice.label}`,{action_id:card.action_id,choice_id:choice.id});
+        choices.appendChild(button);
+      });
+      panel.appendChild(choices);
+    }
+    chat.appendChild(panel);
+  }
+  async function sendMessage(text,actionResponse=null){
+    removeAgentThinking();addBubble('user',text);chatInput.value='';chatInput.disabled=true;
+    const thinking=addAgentThinking();
+    try{
+      const data=await api('/api/agent/chat',{method:'POST',body:JSON.stringify({
+        conversation_id:conversation,message:text,idempotency_key:crypto.randomUUID(),
+        action_response:actionResponse,client_timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Shanghai'
+      })});
+      conversation=data.conversation_id;
+      history.replaceState({},'',`/agent?conversation_id=${encodeURIComponent(conversation)}`);
+      thinking.remove();
+      if(!addAnswerCard(data.answer_card))addBubble('assistant',data.message);
+      (data.tool_calls||[]).forEach(call=>addTool(call.name));
+      addClarification(data.clarification);
+      await refreshSidebarConversations();
+    }catch(error){toast(error.message,true)}
+    finally{removeAgentThinking();chatInput.disabled=false;chatInput.focus();chat.scrollTop=chat.scrollHeight}
+  }
+  async function loadConversation(){
+    chat.replaceChildren();
+    if(!conversation){addBubble('assistant',welcome);return;}
+    try{
+      const messages=await api(`/api/agent/conversations/${encodeURIComponent(conversation)}/messages`);
+      if(!messages.length){addBubble('assistant',welcome);return;}
+      messages.forEach(message=>{
+        if(message.role==='assistant' && addAnswerCard(message.answer_card)){
+          if(message.tool_name)addTool(message.tool_name);
+          return;
+        }
+        addBubble(message.role,message.content||'');
+        if(message.tool_name)addTool(message.tool_name);
+      });
+      chat.scrollTop=chat.scrollHeight;
+    }catch(error){toast(error.message,true);conversation=null;history.replaceState({},'', '/agent');addBubble('assistant',welcome)}
+  }
+  chatForm.onsubmit=async event=>{
+    event.preventDefault();const text=chatInput.value.trim();if(!text)return;
+    await sendMessage(text);
+  };
+  function closeResumeUpload(){resumeUploadDialog.close()}
+  function appendResumeFact(label,value){
+    if(value===undefined||value===null||value==='')return;
+    const row=document.createElement('div');const key=document.createElement('span');const data=document.createElement('strong');
+    key.textContent=label;data.textContent=Array.isArray(value)?value.join('、'):String(value);row.append(key,data);resumeFacts.appendChild(row);
+  }
+  async function openResumeUpload(){
+    resumeUploadStatus.textContent='';resumePreview.hidden=true;resumeUploadForm.reset();resumeJob.replaceChildren();
+    const loading=document.createElement('option');loading.textContent='正在加载岗位…';resumeJob.appendChild(loading);
+    try{
+      const jobs=await api('/api/jobs?status=open');resumeJob.replaceChildren();
+      const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='请选择开放岗位';resumeJob.appendChild(placeholder);
+      jobs.forEach(job=>{const option=document.createElement('option');option.value=job.id;option.textContent=`${job.job_name} · ${job.department}`;resumeJob.appendChild(option)});
+      if(!jobs.length){resumeUploadStatus.textContent='当前没有可用于导入的开放岗位。'}
+      resumeUploadDialog.showModal();
+    }catch(error){toast(error.message,true)}
+  }
+  function showResumePreview(data){
+    pendingResume=data;resumeFacts.replaceChildren();resumeWarnings.replaceChildren();
+    const parsed=data.parsed_data||{};
+    appendResumeFact('姓名',parsed.name);appendResumeFact('手机',parsed.phone);appendResumeFact('邮箱',parsed.email);
+    appendResumeFact('所在城市',parsed.city);appendResumeFact('当前公司',parsed.current_company);appendResumeFact('工作年限',parsed.years_of_experience===undefined?null:`${parsed.years_of_experience} 年`);
+    appendResumeFact('技能',parsed.skills);appendResumeFact('个人概述',parsed.summary);
+    const method=data.extraction_method==='pdf_text'?'PDF 文本提取':data.extraction_method==='docx_text'?'DOCX 文本提取':'阿里云 OCR';
+    resumeMeta.textContent=`解析方式：${method} · 页数：${data.page_count||'—'}${data.ocr_confidence===null||data.ocr_confidence===undefined?'':` · OCR 置信度：${Math.round(data.ocr_confidence*100)}%`}`;
+    (data.review_warnings||[]).forEach(text=>{const item=document.createElement('p');item.textContent=`注意：${text}`;resumeWarnings.appendChild(item)});
+    resumePreview.hidden=false;
+  }
+  resumeUploadForm.addEventListener('submit',async event=>{
+    event.preventDefault();const file=resumeFile.files[0];
+    if(!file){toast('请选择简历文件',true);return;}
+    if(file.size>10*1024*1024){toast('简历文件不能超过 10MB',true);return;}
+    const data=new FormData();data.append('job_id',resumeJob.value);data.append('file',file);
+    resumeParseButton.disabled=true;resumeUploadStatus.textContent='正在提取文本并解析简历，请稍候…';resumePreview.hidden=true;
+    try{
+      const response=await fetch('/api/candidates/import-resume',{method:'POST',headers:{'X-CSRF-Token':csrf()},body:data});
+      const body=await response.json();if(!response.ok)throw new Error(body.error?.message||'简历解析失败');
+      showResumePreview(body.data);resumeUploadStatus.textContent=body.data.duplicate?'已找到相同文件，展示已有解析结果。':'解析完成，请核对后确认。';
+    }catch(error){resumeUploadStatus.textContent='';toast(error.message,true)}
+    finally{resumeParseButton.disabled=false}
+  });
+  async function confirmResume(){
+    if(!canConfirmResume||!pendingResume)return;
+    const button=resumeConfirmButton;button.disabled=true;
+    try{
+      const result=await api(`/api/resumes/${encodeURIComponent(pendingResume.resume_id)}/confirm`,{method:'POST',body:JSON.stringify({corrected_data:pendingResume.parsed_data,job_id:resumeJob.value})});
+      toast(`已将 ${result.name} 录入候选人库`);closeResumeUpload();
+    }catch(error){toast(error.message,true)}finally{button.disabled=false}
+  }
+  loadConversation();
+</script>
+{% endblock %}

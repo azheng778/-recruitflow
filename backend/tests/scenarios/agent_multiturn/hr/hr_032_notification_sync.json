@@ -1,0 +1,152 @@
+{
+  "scenario_id": "hr_032",
+  "title": "notification_sync · 江辰 · 32",
+  "role": "hr",
+  "tags": [
+    "notification_sync",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "schedule_notification",
+    "sync_recruitment_document",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "江辰",
+    "job_alias": "job_a",
+    "job_name": "Python 后端工程师",
+    "seed": 169237
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第32组Python 后端工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第32组招聘记录，查看候选人江辰的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第32组上下文，明天上午九点提醒HR跟进他",
+      "expect": {
+        "intent": "notification_schedule",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "schedule_notification"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第32组招聘待办：把他的应聘记录同步到招聘文档",
+      "expect": {
+        "intent": "document_sync",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "sync_recruitment_document"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第32组复盘前，再次同步同一条记录验证幂等",
+      "expect": {
+        "intent": "document_sync",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "sync_recruitment_document"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": "t04"
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第32组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": [
+    {
+      "type": "notification_count",
+      "candidate_alias": null,
+      "expected": 1
+    },
+    {
+      "type": "document_sync_count",
+      "candidate_alias": null,
+      "expected": 1
+    }
+  ]
+}

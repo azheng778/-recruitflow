@@ -1,0 +1,2 @@
+"""RecruitFlow application package."""
+

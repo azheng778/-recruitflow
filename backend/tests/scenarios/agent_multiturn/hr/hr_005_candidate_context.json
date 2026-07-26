@@ -1,0 +1,146 @@
+{
+  "scenario_id": "hr_005",
+  "title": "candidate_context · 林澄 · 5",
+  "role": "hr",
+  "tags": [
+    "candidate_context",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "propose_status_change",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "林澄",
+    "job_alias": "job_a",
+    "job_name": "AI Agent 工程师",
+    "seed": 669052
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第5组AI Agent 工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第5组招聘记录，查看候选人林澄的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第5组上下文，他目前应聘的是哪个岗位？",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第5组招聘待办：把他推进到筛选阶段",
+      "expect": {
+        "intent": "status_change",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "propose_status_change"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第5组复盘前，再查一次他的最新状态",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第5组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": [
+    {
+      "type": "candidate_job_status",
+      "candidate_alias": "candidate_a",
+      "expected": "screening"
+    }
+  ]
+}

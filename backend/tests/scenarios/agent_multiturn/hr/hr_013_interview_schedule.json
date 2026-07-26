@@ -1,0 +1,147 @@
+{
+  "scenario_id": "hr_013",
+  "title": "interview_schedule · 沈禾 · 13",
+  "role": "hr",
+  "tags": [
+    "interview_schedule",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "create_interview",
+    "schedule_notification",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "沈禾",
+    "job_alias": "job_a",
+    "job_name": "AI Agent 工程师",
+    "seed": 280552
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第13组AI Agent 工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第13组招聘记录，查看候选人沈禾的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第13组上下文，安排他明天下午两点进行线上一面，面试官王强",
+      "expect": {
+        "intent": "interview_schedule",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "create_interview"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第13组招聘待办：提醒王强提前30分钟参加面试",
+      "expect": {
+        "intent": "notification_schedule",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "schedule_notification"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第13组复盘前，查看刚才已安排面试的候选人详情",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第13组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": [
+    {
+      "type": "interview_count",
+      "candidate_alias": null,
+      "expected": 1
+    }
+  ]
+}

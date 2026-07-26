@@ -1,0 +1,42 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: hr_recruitment
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - recruitflow_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: hr_recruitment
+      DB_USERNAME: root
+      UPLOAD_DIR: /app/data/uploads
+      EXPORT_DIR: /app/data/exports
+      LANGGRAPH_CHECKPOINT_PATH: /app/data/langgraph.sqlite
+    ports:
+      - "8000:8000"
+    volumes:
+      - recruitflow_data:/app/data
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  recruitflow_mysql:
+  recruitflow_data:
+

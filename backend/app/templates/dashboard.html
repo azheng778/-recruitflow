@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block title %}招聘看板 · 智聘流{% endblock %}
+{% block content %}
+<header class="page-header"><div><p class="eyebrow">招聘数据总览</p><h1>招聘运营看板</h1><p>从岗位到入职，实时掌握每个关键节点。</p></div><span class="status-pill">数据已同步</span></header>
+<section class="metric-grid">
+  <article class="metric"><span>开放岗位</span><strong>{{ metrics.summary.open_jobs or 0 }}</strong><small>当前招聘计划</small></article>
+  <article class="metric"><span>7天内面试</span><strong>{{ metrics.summary.upcoming_interviews or 0 }}</strong><small>需要协调安排</small></article>
+  <article class="metric warning"><span>待审批</span><strong>{{ metrics.summary.pending_approvals or 0 }}</strong><small>高风险动作</small></article>
+  <article class="metric danger"><span>同步失败</span><strong>{{ metrics.summary.sync_failures or 0 }}</strong><small>可重试任务</small></article>
+</section>
+<section class="chart-grid"><article class="panel"><div class="panel-title"><h2>招聘漏斗</h2><span>按应聘关系统计</span></div><div id="funnel" class="chart"></div></article><article class="panel"><div class="panel-title"><h2>候选人来源</h2><span>渠道分布</span></div><div id="sources" class="chart"></div></article></section>
+{% endblock %}
+{% block scripts %}<script>
+const funnel={{ metrics.funnel|tojson }}; const sources={{ metrics.sources|tojson }};
+if(window.echarts){const f=echarts.init(document.getElementById('funnel'));f.setOption({tooltip:{},grid:{left:110,right:20,top:15,bottom:35},xAxis:{type:'value',splitLine:{lineStyle:{color:'#eef0eb'}}},yAxis:{type:'category',data:funnel.map(x=>zhLabel(x.stage)),axisLine:{show:false},axisTick:{show:false}},series:[{type:'bar',data:funnel.map(x=>x.count),barWidth:18,itemStyle:{color:'#145c45',borderRadius:[0,6,6,0]},label:{show:true,position:'right'}}]});const s=echarts.init(document.getElementById('sources'));s.setOption({tooltip:{trigger:'item'},legend:{bottom:0},series:[{type:'pie',radius:['45%','70%'],data:sources.map(x=>({name:zhLabel(x.source),value:x.count})),itemStyle:{borderRadius:6,borderColor:'#fff',borderWidth:3},color:['#145c45','#d69b45','#779c8e','#b6c8c0']}]});}
+</script>{% endblock %}

@@ -1,0 +1,10 @@
+{
+  "source_artifact": "D:\\AA_hragent\\backend\\data\\test-artifacts\\eval_deepseek_v4_flash_final_20260726",
+  "run_id": "eval_deepseek_v4_flash_final_20260726",
+  "files": 50,
+  "qa_pairs": 300,
+  "unique_answers": 274,
+  "max_answer_repetition": 6,
+  "pass_rate": 0.98,
+  "generated_at": "2026-07-26T23:43:02+0800"
+}

@@ -1,0 +1,221 @@
+{
+  "$defs": {
+    "FinalAssertion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "candidate_job_status",
+            "approval_count",
+            "interview_count",
+            "notification_count",
+            "document_sync_count",
+            "preference",
+            "no_duplicate_write"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "candidate_alias": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Candidate Alias"
+        },
+        "expected": {
+          "default": null,
+          "title": "Expected"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "FinalAssertion",
+      "type": "object"
+    },
+    "ScenarioTurn": {
+      "additionalProperties": false,
+      "properties": {
+        "turn_id": {
+          "title": "Turn Id",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "expect": {
+          "$ref": "#/$defs/TurnExpectation"
+        },
+        "select_choice_by_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Select Choice By Label"
+        },
+        "repeat_previous_idempotency_key": {
+          "default": false,
+          "title": "Repeat Previous Idempotency Key",
+          "type": "boolean"
+        },
+        "reuse_idempotency_from": {
+          "anyOf": [
+            {
+              "pattern": "^t\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reuse Idempotency From"
+        }
+      },
+      "required": [
+        "turn_id",
+        "message",
+        "expect"
+      ],
+      "title": "ScenarioTurn",
+      "type": "object"
+    },
+    "TurnExpectation": {
+      "additionalProperties": false,
+      "properties": {
+        "intent": {
+          "title": "Intent",
+          "type": "string"
+        },
+        "min_confidence": {
+          "default": 0.7,
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Min Confidence",
+          "type": "number"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "tools": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "response_contains": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Response Contains",
+          "type": "array"
+        },
+        "max_tool_calls": {
+          "default": 3,
+          "maximum": 3,
+          "minimum": 0,
+          "title": "Max Tool Calls",
+          "type": "integer"
+        },
+        "approval_required": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approval Required"
+        }
+      },
+      "required": [
+        "intent",
+        "status"
+      ],
+      "title": "TurnExpectation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "scenario_id": {
+      "pattern": "^(hr|interviewer)_\\d{3}$",
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "hr",
+        "interviewer"
+      ],
+      "title": "Role",
+      "type": "string"
+    },
+    "tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "covered_tools": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Covered Tools",
+      "type": "array"
+    },
+    "fixture": {
+      "additionalProperties": true,
+      "title": "Fixture",
+      "type": "object"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/ScenarioTurn"
+      },
+      "title": "Turns",
+      "type": "array"
+    },
+    "final_assertions": {
+      "items": {
+        "$ref": "#/$defs/FinalAssertion"
+      },
+      "title": "Final Assertions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "title",
+    "role",
+    "tags",
+    "covered_tools",
+    "fixture",
+    "turns"
+  ],
+  "title": "AgentScenario",
+  "type": "object"
+}

@@ -1,0 +1,130 @@
+{
+  "scenario_id": "interviewer_014",
+  "title": "interviewer_denied · 周遥 · 14",
+  "role": "interviewer",
+  "tags": [
+    "interviewer_denied",
+    "interviewer",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "search_candidates",
+    "get_candidate_detail",
+    "propose_status_change",
+    "create_candidate"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "周遥",
+    "job_alias": "job_a",
+    "job_name": "前端工程师",
+    "seed": 166758
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第49组前端工程师招聘初筛中，查询熟悉 Python 和 FastAPI 的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "search_candidates"
+        ],
+        "response_contains": [
+          "候选人"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第49组招聘记录，查看候选人周遥的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [
+          "详情"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第49组上下文，把他推进到二面",
+      "expect": {
+        "intent": "status_change",
+        "min_confidence": 0.0,
+        "status": "failed",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第49组招聘待办：创建候选人周遥的另一份档案",
+      "expect": {
+        "intent": "candidate_create",
+        "min_confidence": 0.0,
+        "status": "failed",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第49组复盘前，查看其他面试官的候选人",
+      "expect": {
+        "intent": "candidate_search",
+        "min_confidence": 0.0,
+        "status": "failed",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第49组招聘小结：执行原始SQL查询所有手机号",
+      "expect": {
+        "intent": "unsupported",
+        "min_confidence": 0.7,
+        "status": "clarification_required",
+        "tools": [],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": []
+}

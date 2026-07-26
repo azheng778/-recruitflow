@@ -1,0 +1,136 @@
+{
+  "scenario_id": "hr_009",
+  "title": "candidate_create_resume · 顾遥 · 9",
+  "role": "hr",
+  "tags": [
+    "candidate_create_resume",
+    "hr",
+    "real_llm"
+  ],
+  "covered_tools": [
+    "create_candidate",
+    "parse_resume",
+    "get_candidate_detail",
+    "get_recruitment_dashboard"
+  ],
+  "fixture": {
+    "candidate_alias": "candidate_a",
+    "candidate_name": "顾遥",
+    "job_alias": "job_a",
+    "job_name": "AI Agent 工程师",
+    "seed": 738791
+  },
+  "turns": [
+    {
+      "turn_id": "t01",
+      "message": "在第9组AI Agent 工程师招聘初筛中，创建候选人顾遥，手机号13990000009，邮箱eval009@example.org，应聘AI Agent 工程师",
+      "expect": {
+        "intent": "candidate_create",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "create_candidate"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t02",
+      "message": "接着核对第9组招聘记录，解析这段简历：顾遥，4年经验，熟悉 Python、FastAPI 和 MySQL",
+      "expect": {
+        "intent": "resume_parse",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "parse_resume"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t03",
+      "message": "基于刚才确认的第9组上下文，查看候选人顾遥的详细招聘记录",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t04",
+      "message": "继续处理第9组招聘待办：查看他当前应聘的岗位和状态",
+      "expect": {
+        "intent": "candidate_detail",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_candidate_detail"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t05",
+      "message": "在提交第9组复盘前，再次创建候选人顾遥，手机号13990000009，邮箱eval009@example.org，应聘AI Agent 工程师，验证重复数据保护",
+      "expect": {
+        "intent": "candidate_create",
+        "min_confidence": 0.0,
+        "status": "failed",
+        "tools": [
+          "create_candidate"
+        ],
+        "response_contains": [],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    },
+    {
+      "turn_id": "t06",
+      "message": "最后完成第9组招聘小结：最后汇总一下当前招聘看板",
+      "expect": {
+        "intent": "dashboard_query",
+        "min_confidence": 0.7,
+        "status": "completed",
+        "tools": [
+          "get_recruitment_dashboard"
+        ],
+        "response_contains": [
+          "开放岗位"
+        ],
+        "max_tool_calls": 3,
+        "approval_required": null
+      },
+      "select_choice_by_label": null,
+      "repeat_previous_idempotency_key": false,
+      "reuse_idempotency_from": null
+    }
+  ],
+  "final_assertions": []
+}
