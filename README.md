@@ -567,38 +567,7 @@ docker compose up --build
 
 ---
 
-## 8. 安全注意事项
-
-### 8.1 API Key 管理
-
-- **`.env` 绝对不能提交到 Git**（已在 `.gitignore` 中排除）
-- **`.claude/settings.json` 和 `.claude/settings.local.json`** 可能包含 API Token，同样已排除
-- 所有 API Key 应通过环境变量注入，禁止在源代码中硬编码
-- `.env.example` 是模板文件，只包含占位符，可以安全提交
-
-### 8.2 生产环境检查清单
-
-部署到生产环境前，务必完成以下检查：
-
-- [ ] `SECRET_KEY` — 修改为 ≥32 字节的随机字符串
-- [ ] `DEMO_PASSWORD` — 修改为强密码，或完全禁用演示账号
-- [ ] `DB_PASSWORD` — 使用强密码，不要使用 `123456`
-- [ ] `DEBUG` — 设置为 `false`
-- [ ] `APP_ENV` — 设置为 `production`
-- [ ] 数据库 — 禁止执行 `seed.py` 和 `generate_demo_data.py`
-- [ ] HTTPS — 通过 Cloudflare Tunnel 或反向代理启用 TLS
-- [ ] 数据库端口 — 生产环境不要暴露 MySQL 端口到公网
-- [ ] Agent 写操作 — 确认高风险操作 (`risk_level: "high"`) 的审批流程正常工作
-- [ ] LLM API Key — 确认额度充足，或配置了安全的规则降级
-
-### 8.3 密钥泄露应急处理
-
-如果 API Key 不慎提交到 Git 或公开：
-
-1. **立即轮换**：登录对应平台（阿里云百炼 / DeepSeek / 阿里云 OCR 市场）→ 禁用旧 Key → 生成新 Key
-2. **更新 `.env`**：用新 Key 替换
-3. **检查 Git 历史**：如果已推送，使用 `git filter-branch` 或 `BFG Repo-Cleaner` 清除历史
-4. **检查 API 调用日志**：确认密钥未被恶意使用
+使用
 
 ---
 
